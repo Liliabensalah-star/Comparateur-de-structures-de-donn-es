@@ -1,0 +1,14 @@
+# Fichiers produits par la compilation
+build/
+comparateur
+plugins/*.so
+*.o
+*.d
+
+# Résultats des mesures (régénérés à chaque lancement)
+resultats/*
+!resultats/.gitkeep
+
+# Éditeurs
+.vscode/
+*.swp
