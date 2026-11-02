@@ -14,15 +14,15 @@ CFLAGS  := -Wall -Wextra -std=gnu11 -g -Iinclude
 DEPFLAGS = -MMD -MP
 
 # SDL : options trouvées automatiquement par pkg-config.
-# SDL2 (paquet libsdl2-dev) par défaut ; pour SDL 1.2 : make SDL_PKG=sdl
-SDL_PKG    ?= sdl2
+# SDL 1.2 + SDL_gfx par défaut (paquets libsdl1.2-dev et libsdl-gfx1.2-dev), comme dans le cours
+SDL_PKG    ?= sdl
 SDL_CFLAGS := $(shell pkg-config --cflags $(SDL_PKG) 2>/dev/null)
 SDL_LIBS   := $(shell pkg-config --libs $(SDL_PKG) 2>/dev/null)
 ifeq ($(SDL_LIBS),)
-$(warning SDL introuvable ($(SDL_PKG)) : installer libsdl2-dev, ou lancer make SDL_PKG=sdl pour SDL 1.2)
+$(warning SDL introuvable ($(SDL_PKG)) : installer libsdl1.2-dev et libsdl-gfx1.2-dev)
 endif
 
-LDLIBS  := -ldl -lm $(SDL_LIBS)
+LDLIBS  := -ldl -lm $(SDL_LIBS) -lSDL_gfx
 
 # Programme principal : tous les .c de src/, compilés dans build/
 BIN     := comparateur
