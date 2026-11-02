@@ -95,3 +95,27 @@ static Resultat Liste_ajouter(void * s, const char * mot) {
   Liste_signaler(liste, ETAPE_INSERTION, nouveau->mot);
   return RES_OK;
 }
+
+/* Indique si le mot est présent dans la liste */
+/* Complexité : O(n) */
+static Resultat Liste_chercher(void * s, const char * mot) {
+  Liste * liste = (Liste *)s;
+  Maillon * current = NULL;
+  if((current = Liste_trouver(liste, mot)) == NULL) {
+    return RES_ABSENT;
+  }
+  Liste_signaler(liste, ETAPE_TROUVE, current->mot);
+  return RES_OK;
+}
+
+/* Renvoie le nombre de mots rangés */
+/* Complexité : O(1) */
+static size_t Liste_taille(void * s) {
+  return ((Liste *)s)->nb_mots;
+}
+
+/* Renvoie le nombre de comparaisons faites depuis la création */
+/* Complexité : O(1) */
+static long Liste_operations(void * s) {
+  return ((Liste *)s)->nb_comparaisons;
+}
