@@ -119,3 +119,67 @@ static size_t Liste_taille(void * s) {
 static long Liste_operations(void * s) {
   return ((Liste *)s)->nb_comparaisons;
 }
+
+/* Libère tous les maillons, leurs mots, puis la liste */
+/* Complexité : O(n) */
+static void Liste_detruire(void * s) {
+  Liste * liste = (Liste *)s;
+  Maillon * current = NULL;
+  Maillon * suivant = NULL;
+  if(liste == NULL) {
+    return;
+  }
+  for(current = liste->tete; current != NULL; current = suivant) {
+    suivant = current->suivant;
+    free(current->mot);
+    free(current);
+  }
+  free(liste);
+}
+
+/* Donne chaque mot et sa place à la fonction f (pour le dessin) */
+/* Complexité : O(n) */
+static void Liste_parcourir(void * s, VisiteurMot f, void * contexte) {
+  Liste * liste = (Liste *)s;
+  Maillon * current = NULL;
+  int colonne = 0;
+  for(current = liste->tete; current != NULL; current = current->suivant) {
+    f(current->mot, 0, colonne, contexte);
+    ++colonne;
+  }
+}
+
+/* Branche (ou débranche si f vaut NULL) la fonction d'animation */
+/* Complexité : O(1) */
+static void Liste_observer(void * s, ObservateurEtape f, void * contexte) {
+  Liste * liste = (Liste *)s;
+  liste->observateur = f;
+  liste->contexte = contexte;
+}
+
+/* Suppression d'un mot : prévue dans la tâche N */
+/* Complexité : O(1) pour l'instant */
+static Resultat Liste_supprimer(void * s, const char * mot) {
+  (void)s;
+  (void)mot;
+  return RES_ABSENT;
+}
+
+/* La fiche de la liste, remplie avec nos fonctions */
+static const Structure fiche = {
+  .nom = "Liste",
+  .creer = Liste_creer,
+  .ajouter = Liste_ajouter,
+  .chercher = Liste_chercher,
+  .supprimer = Liste_supprimer,
+  .taille = Liste_taille,
+  .operations = Liste_operations,
+  .detruire = Liste_detruire,
+  .parcourir = Liste_parcourir,
+  .observer = Liste_observer
+};
+
+/* Fonction récupérée par le programme avec dlsym */
+const Structure * structure_plugin(void) {
+  return &fiche;
+}
