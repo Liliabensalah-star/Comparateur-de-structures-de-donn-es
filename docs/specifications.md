@@ -160,3 +160,4 @@ Séparateur : virgule. En attendant le vrai banc de test, Javerichalle utilise u
 - `structure.h` et ce document sont envoyés sur `main` le 29/10.
 - Une branche et une Pull Request par tâche, relue par l'autre.
 - Point de 10 minutes par semaine : où j'en suis, ce qui me bloque, ce que j'attends de toi.
+- **Jamais de push direct ni de force-push sur `main`.** Chacune code sur sa branche (`lilia`, `Javerichalle-Mfina`) ; tout arrive sur `main` par une Pull Request relue et fusionnée par l'autre. On ne réécrit jamais un commit déjà poussé (`--amend`, `--force`, `rebase`, `reset`) et on n'utilise aucune commande qui pourrait effacer le travail de l'autre : l'historique git sert à montrer qui a fait quoi.
