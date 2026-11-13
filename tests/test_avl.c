@@ -44,6 +44,77 @@ static void compter_etape(TypeEtape type, const char * mot, void * contexte) {
   ++(*(int *)contexte);
 }
 
+/* Retient la profondeur maximale vue (donnée à parcourir) */
+static void profondeur_max(const char * mot, int ligne, int colonne, void * contexte) {
+  int * max = (int *)contexte;
+  (void)mot;
+  (void)colonne;
+  if(ligne > *max) {
+    *max = ligne;
+  }
+}
+
+/* Compte seulement les rotations signalées à l'animation */
+static void compter_rotation(TypeEtape type, const char * mot, void * contexte) {
+  (void)mot;
+  if(type == ETAPE_ROTATION) {
+    ++(*(int *)contexte);
+  }
+}
+
+/* Tâche H : les rotations gardent l'arbre équilibré */
+static void test_rotations(const Structure * st) {
+  void * arbre = NULL;
+  char mot[32];
+  int i;
+  int nb_rotations = 0;
+  int prof = 0;
+  int trouves = 0;
+
+  /* a, b, c dans l'ordre : sans rotation ce serait une ligne de profondeur 2 */
+  arbre = st->creer();
+  st->observer(arbre, compter_rotation, &nb_rotations);
+  st->ajouter(arbre, "a");
+  st->ajouter(arbre, "b");
+  st->ajouter(arbre, "c");
+  st->observer(arbre, NULL, NULL);
+  st->parcourir(arbre, profondeur_max, &prof);
+  verifier(nb_rotations == 1 && prof == 1, "a, b, c : 1 rotation simple, b devient la racine");
+  st->detruire(arbre);
+
+  /* c, a, b : cas gauche-droite, il faut une double rotation */
+  nb_rotations = 0;
+  prof = 0;
+  arbre = st->creer();
+  st->observer(arbre, compter_rotation, &nb_rotations);
+  st->ajouter(arbre, "c");
+  st->ajouter(arbre, "a");
+  st->ajouter(arbre, "b");
+  st->observer(arbre, NULL, NULL);
+  st->parcourir(arbre, profondeur_max, &prof);
+  verifier(nb_rotations == 2 && prof == 1, "c, a, b : double rotation, b devient la racine");
+  st->detruire(arbre);
+
+  /* 10000 mots déjà triés : le pire cas sans rotation (profondeur 9999) */
+  prof = 0;
+  arbre = st->creer();
+  for(i = 0; i < 10000; ++i) {
+    sprintf(mot, "mot%05d", i);
+    st->ajouter(arbre, mot);
+  }
+  for(i = 0; i < 10000; ++i) {
+    sprintf(mot, "mot%05d", i);
+    if(st->chercher(arbre, mot) == RES_OK) {
+      ++trouves;
+    }
+  }
+  st->parcourir(arbre, profondeur_max, &prof);
+  printf("  10000 mots tries : profondeur maximale %d\n", prof);
+  verifier(trouves == 10000, "10000 mots tries tous retrouves");
+  verifier(prof <= 14, "10000 mots tries : arbre equilibre (profondeur <= 14)");
+  st->detruire(arbre);
+}
+
 int main() {
   const char * lib_path = "./plugins/avl.so";
   void * dlptr = NULL;
@@ -94,6 +165,9 @@ int main() {
 
   st->detruire(arbre);
   arbre = NULL;
+
+  test_rotations(st);
+
   dlclose(dlptr);
   dlptr = NULL;
 
