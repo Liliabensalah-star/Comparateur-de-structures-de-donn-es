@@ -4,8 +4,8 @@
  * @brief Plugin : arbre AVL de mots.
  * @author Lilia BEN SALAH
  *
- * Tâche F : ajout et recherche (arbre binaire de recherche, sans rotation).
- * Tâche H : les rotations seront ajoutées dans Noeud_inserer.
+ * Tâche F : ajout et recherche.
+ * Tâche H : rotations (Noeud_equilibrer) : l'arbre reste équilibré.
  */
 #include <stdlib.h>
 #include <string.h>
@@ -93,9 +93,69 @@ static void Noeud_maj_hauteur(Noeud * noeud) {
   noeud->hauteur = 1 + (hg > hd ? hg : hd);
 }
 
-/* Range le mot dans le sous-arbre et renvoie sa nouvelle racine */
+/* Équilibre d'un nœud : hauteur gauche - hauteur droite */
+/* > 1 : trop haut à gauche, < -1 : trop haut à droite */
+/* Complexité : O(1) */
+static int Noeud_equilibre(Noeud * noeud) {
+  return Noeud_hauteur(noeud->gauche) - Noeud_hauteur(noeud->droite);
+}
+
+/* Rotation à droite autour de y : son enfant gauche x devient la racine */
+/*        y                x        */
+/*       / \              / \       */
+/*      x   C     ->     A   y      */
+/*     / \                  / \     */
+/*    A   B                B   C    */
+/* Complexité : O(1) */
+static Noeud * Noeud_rotation_droite(Arbre * arbre, Noeud * y) {
+  Noeud * x = y->gauche;   /* x va monter */
+  y->gauche = x->droite;   /* B change de parent : de x vers y */
+  x->droite = y;           /* y descend à droite de x */
+  Noeud_maj_hauteur(y);    /* y d'abord : il est maintenant sous x */
+  Noeud_maj_hauteur(x);    /* puis x, dont la hauteur dépend de y */
+  Arbre_signaler(arbre, ETAPE_ROTATION, y->mot);
+  return x;                /* x est la nouvelle racine de ce sous-arbre */
+}
+
+/* Rotation à gauche autour de x : son enfant droit y devient la racine */
+/*      x                    y      */
+/*     / \                  / \     */
+/*    A   y       ->       x   C    */
+/*       / \              / \       */
+/*      B   C            A   B      */
+/* Complexité : O(1) */
+static Noeud * Noeud_rotation_gauche(Arbre * arbre, Noeud * x) {
+  Noeud * y = x->droite;   /* y va monter */
+  x->droite = y->gauche;   /* B change de parent : de y vers x */
+  y->gauche = x;           /* x descend à gauche de y */
+  Noeud_maj_hauteur(x);    /* x d'abord : il est maintenant sous y */
+  Noeud_maj_hauteur(y);    /* puis y */
+  Arbre_signaler(arbre, ETAPE_ROTATION, x->mot);
+  return y;                /* y est la nouvelle racine de ce sous-arbre */
+}
+
+/* Rééquilibre un nœud après un ajout et renvoie la racine du sous-arbre */
+/* Complexité : O(1) (au plus deux rotations) */
+static Noeud * Noeud_equilibrer(Arbre * arbre, Noeud * noeud) {
+  int eq = Noeud_equilibre(noeud);
+  if(eq > 1) {                                    /* trop haut à gauche */
+    if(Noeud_equilibre(noeud->gauche) < 0) {      /* cas gauche-droite */
+      noeud->gauche = Noeud_rotation_gauche(arbre, noeud->gauche);
+    }
+    return Noeud_rotation_droite(arbre, noeud);   /* cas gauche-gauche */
+  }
+  if(eq < -1) {                                   /* trop haut à droite */
+    if(Noeud_equilibre(noeud->droite) > 0) {      /* cas droite-gauche */
+      noeud->droite = Noeud_rotation_droite(arbre, noeud->droite);
+    }
+    return Noeud_rotation_gauche(arbre, noeud);   /* cas droite-droite */
+  }
+  return noeud;                                   /* déjà équilibré */
+}
+
+/* Range le mot dans le sous-arbre, le rééquilibre et renvoie sa nouvelle racine */
 /* *res reçoit RES_OK, RES_ABSENT (doublon) ou RES_ERREUR (mémoire) */
-/* Complexité : O(h), h = hauteur de l'arbre */
+/* Complexité : O(log n) grâce à l'équilibrage */
 static Noeud * Noeud_inserer(Arbre * arbre, Noeud * noeud, const char * mot, Resultat * res) {
   int cmp = 0;
   if(noeud == NULL) {
@@ -118,8 +178,7 @@ static Noeud * Noeud_inserer(Arbre * arbre, Noeud * noeud, const char * mot, Res
     return noeud;
   }
   Noeud_maj_hauteur(noeud);
-  /* Tâche H : rééquilibrer ici (rotations) */
-  return noeud;
+  return Noeud_equilibrer(arbre, noeud);
 }
 
 /* Ajoute une copie du mot, les doublons sont refusés */
