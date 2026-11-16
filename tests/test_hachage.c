@@ -55,6 +55,12 @@ static void test_petit(const Structure * st) {
   printf("  comparaisons : %ld\n", st->operations(table));
   printf("Contenu de la table :\n");
   st->parcourir(table, afficher_mot, NULL);
+  verifier(st->supprimer(table, "ours") == RES_ABSENT, "supprimer ours (absent) : RES_ABSENT");
+  verifier(st->supprimer(table, "abri") == RES_OK, "supprimer abri");
+  verifier(st->taille(table) == 2, "2 mots apres suppression");
+  verifier(st->chercher(table, "abri") == RES_ABSENT, "abri n'est plus trouve");
+  verifier(st->supprimer(table, "abri") == RES_ABSENT, "supprimer abri une 2e fois : RES_ABSENT");
+  verifier(st->ajouter(table, "abri") == RES_OK, "on peut ajouter de nouveau apres suppression");
   st->detruire(table);
 }
 
@@ -86,6 +92,15 @@ static void test_grand(const Structure * st) {
   verifier(compteurs[0] == NB_MOTS_GRAND_TEST, "parcourir donne les 5000 mots");
   verifier(compteurs[1] >= 1024, "la table a grandi (plus de 1024 cases)");
   printf("  comparaisons pour 5000 ajouts + 5000 recherches : %ld\n", st->operations(table));
+  trouves = 0;
+  for(i = 0; i < NB_MOTS_GRAND_TEST; ++i) {
+    sprintf(mot, "mot%d", i);
+    if(st->supprimer(table, mot) == RES_OK) {
+      ++trouves;
+    }
+  }
+  verifier(trouves == NB_MOTS_GRAND_TEST && st->taille(table) == 0, "les 5000 mots supprimes, table vide");
+  verifier(st->chercher(table, "mot42") == RES_ABSENT, "mot42 n'est plus trouve");
   st->detruire(table);
 }
 

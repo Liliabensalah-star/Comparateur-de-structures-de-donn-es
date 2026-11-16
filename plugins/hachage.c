@@ -218,11 +218,25 @@ static void Table_observer(void * s, ObservateurEtape f, void * contexte) {
   table->contexte = contexte;
 }
 
-/* Suppression d'un mot : prévue dans la tâche N */
-/* Complexité : O(1) pour l'instant */
+/* Retire le mot de sa case et libère son maillon ; RES_ABSENT s'il n'y est pas */
+/* Complexité : O(1) en moyenne */
 static Resultat Table_supprimer(void * s, const char * mot) {
-  (void)s;
-  (void)mot;
+  Table * table = (Table *)s;
+  Maillon ** lien = NULL;
+  Maillon * current = NULL;
+  for(lien = &(table->cases[Table_indice(table, mot)]); *lien != NULL; lien = &((*lien)->suivant)) {
+    ++(table->nb_comparaisons);
+    Table_signaler(table, ETAPE_VISITE, (*lien)->mot);
+    if(strcmp((*lien)->mot, mot) == 0) {
+      current = *lien;
+      *lien = current->suivant;
+      --(table->nb_mots);
+      Table_signaler(table, ETAPE_SUPPRESSION, current->mot);
+      free(current->mot);
+      free(current);
+      return RES_OK;
+    }
+  }
   return RES_ABSENT;
 }
 

@@ -62,6 +62,17 @@ int main() {
   printf("Contenu de la liste :\n");
   st->parcourir(liste, afficher_mot, NULL);
 
+  verifier(st->supprimer(liste, "ours") == RES_ABSENT, "supprimer ours (absent) : RES_ABSENT");
+  verifier(st->supprimer(liste, "abri") == RES_OK, "supprimer abri (milieu)");
+  verifier(st->taille(liste) == 2, "2 mots apres suppression");
+  verifier(st->chercher(liste, "abri") == RES_ABSENT, "abri n'est plus trouve");
+  verifier(st->supprimer(liste, "abri") == RES_ABSENT, "supprimer abri une 2e fois : RES_ABSENT");
+  verifier(st->supprimer(liste, "lion") == RES_OK, "supprimer lion (tete)");
+  verifier(st->supprimer(liste, "chat") == RES_OK, "supprimer chat (dernier mot)");
+  verifier(st->taille(liste) == 0, "liste vide apres 3 suppressions");
+  verifier(st->supprimer(liste, "chat") == RES_ABSENT, "supprimer dans une liste vide : RES_ABSENT");
+  verifier(st->ajouter(liste, "abri") == RES_OK, "on peut ajouter de nouveau apres suppression");
+
   st->detruire(liste);
   liste = NULL;
   dlclose(dlptr);

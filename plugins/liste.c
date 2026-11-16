@@ -157,11 +157,26 @@ static void Liste_observer(void * s, ObservateurEtape f, void * contexte) {
   liste->contexte = contexte;
 }
 
-/* Suppression d'un mot : prévue dans la tâche N */
-/* Complexité : O(1) pour l'instant */
+
+/* Retire le mot de la liste et libère son maillon ; RES_ABSENT s'il n'y est pas */
+/* Complexité : O(n) */
 static Resultat Liste_supprimer(void * s, const char * mot) {
-  (void)s;
-  (void)mot;
+  Liste * liste = (Liste *)s;
+  Maillon ** lien = NULL;
+  Maillon * current = NULL;
+  for(lien = &(liste->tete); *lien != NULL; lien = &((*lien)->suivant)) {
+    ++(liste->nb_comparaisons);
+    Liste_signaler(liste, ETAPE_VISITE, (*lien)->mot);
+    if(strcmp((*lien)->mot, mot) == 0) {
+      current = *lien;
+      *lien = current->suivant;
+      --(liste->nb_mots);
+      Liste_signaler(liste, ETAPE_SUPPRESSION, current->mot);
+      free(current->mot);
+      free(current);
+      return RES_OK;
+    }
+  }
   return RES_ABSENT;
 }
 
