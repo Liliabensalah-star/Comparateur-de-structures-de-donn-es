@@ -45,7 +45,7 @@ Dictionnaire * Dictionnaire_charger(const char * chemin) {
   res->mots = NULL;
   res->nb_mots = 0;
   res->capacite = 0;
-  while(fscanf(fich, "%1023s", buffer) == 1) {
+  while(fscanf(fich, " %1023[^\r\n]%*[^\n]", buffer) == 1) {
     if(strlen(buffer) > MOT_LONGUEUR_MAX) {
       continue;
     }
@@ -61,7 +61,7 @@ Dictionnaire * Dictionnaire_charger(const char * chemin) {
   return res;
 }
 
-/* Mélange les mots avec une graine fixe */
+/* Mélange les mots (Fisher-Yates) avec une graine fixe */
 /* Complexité : O(n) */
 void Dictionnaire_melanger(Dictionnaire * dico, unsigned int graine) {
   size_t i;

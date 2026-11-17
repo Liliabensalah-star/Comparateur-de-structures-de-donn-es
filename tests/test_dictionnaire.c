@@ -40,15 +40,30 @@ int main() {
 
   verifier(Dictionnaire_charger("data/inexistant.txt") == NULL, "fichier inexistant : NULL");
 
+  if((dico = Dictionnaire_charger("data/vide.txt")) == NULL) {
+    printf("ECHEC : impossible de lire data/vide.txt\n");
+    exit(EXIT_FAILURE);
+  }
+  verifier(dico->nb_mots == 0, "fichier vide : 0 mot (et pas NULL)");
+  Dictionnaire_free(&dico);
+
+  if((dico = Dictionnaire_charger("data/long.txt")) == NULL) {
+    printf("ECHEC : impossible de lire data/long.txt\n");
+    exit(EXIT_FAILURE);
+  }
+  verifier(dico->nb_mots == 2 && strcmp(dico->mots[0], "chat") == 0 && strcmp(dico->mots[1], "abri") == 0,
+           "lignes trop longues ignorees en entier (aucun morceau ne devient un mot)");
+  Dictionnaire_free(&dico);
+
   if((dico = Dictionnaire_charger("data/test.txt")) == NULL) {
     printf("ECHEC : impossible de lire data/test.txt\n");
     exit(EXIT_FAILURE);
   }
-  verifier(dico->nb_mots == 6, "6 mots lus (lignes vides et mot trop long ignores)");
+  verifier(dico->nb_mots == 6, "6 mots lus (lignes vides et ligne de 101 octets ignorees)");
   verifier(strcmp(dico->mots[0], "chat") == 0, "1er mot : chat");
   verifier(strcmp(dico->mots[1], "abri") == 0, "ligne vide ignoree : 2e mot abri");
   verifier(strcmp(dico->mots[2], "lion") == 0, "\\r retire : 3e mot lion");
-  verifier(strcmp(dico->mots[3], long100) == 0, "mot de 100 caracteres garde");
+  verifier(strcmp(dico->mots[3], long100) == 0, "mot de 100 octets garde");
   verifier(strcmp(dico->mots[4], "été") == 0, "accents gardes : été");
   verifier(strcmp(dico->mots[5], "chat") == 0, "doublon du fichier garde");
 
