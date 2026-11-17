@@ -12,3 +12,6 @@ resultats/*
 # Éditeurs
 .vscode/
 *.swp
+
+# Programmes de test compilés
+/test_*
