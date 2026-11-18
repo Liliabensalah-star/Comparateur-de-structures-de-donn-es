@@ -74,7 +74,7 @@ Il charge un dictionnaire de mots depuis un fichier, insère ces mots dans chacu
 |---|---|---|
 | Choix du sujet | 14/10/2026 | ✅ Validé |
 | Roadmap | 21/10/2026 | ✅ Rendue |
-| Prototype | 18/11/2026 | 🔄 En cours |
+| Prototype | 18/11/2026 | ✅ Rendu |
 | Rendu final | 09/12/2026 | ⏳ À venir |
 | Soutenance | 10/12/2026 | ⏳ À venir |
 
@@ -104,7 +104,7 @@ sudo apt install build-essential git valgrind libsdl1.2-dev libsdl-gfx1.2-dev wf
 Le détail de l'installation est dans **[docs/INSTALLATION.pdf](docs/INSTALLATION.pdf)**.
 
 > [!NOTE]
-> La compilation (`make`) et le lancement du programme seront détaillés avec le prototype.
+> **Compiler :** `make` · **Lancer :** `./comparateur -r` (mesures rapides puis courbes), `./comparateur` (mesures complètes), `./comparateur -c` (courbes seulement), `./comparateur -h` (aide). Dans la fenêtre : 1/2/3 opération, T temps ou comparaisons, L échelle log, Échap quitter.
 
 ---
 
